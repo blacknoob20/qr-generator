@@ -28,18 +28,10 @@ export function App() {
   }, []);
 
   const handleConfigChange = (newConfig: QRConfig) => {
-    if (newConfig.content !== contentSignal.value) {
-      setContent(newConfig.content);
-    }
-    if (newConfig.encoding !== encodingSignal.value) {
-      setEncoding(newConfig.encoding);
-    }
-    if (newConfig.style !== styleSignal.value) {
-      setStyle(newConfig.style);
-    }
-    if (newConfig.advanced !== advancedSignal.value) {
-      setAdvanced(newConfig.advanced);
-    }
+    if (newConfig.content !== contentSignal.value) setContent(newConfig.content);
+    if (newConfig.encoding !== encodingSignal.value) setEncoding(newConfig.encoding);
+    if (newConfig.style !== styleSignal.value) setStyle(newConfig.style);
+    if (newConfig.advanced !== advancedSignal.value) setAdvanced(newConfig.advanced);
   };
 
   const handleThemeToggle = () => {
@@ -47,9 +39,7 @@ export function App() {
     setTheme(newTheme);
   };
 
-  const handleReset = () => {
-    resetConfig();
-  };
+  const handleReset = () => resetConfig();
 
   return (
     <div class="app">
@@ -58,7 +48,7 @@ export function App() {
           <span class="header__icon">◈</span>
           <div class="header__brand">
             <span class="header__title">QR Studio</span>
-            <span class="header__subtitle">Generador profesional</span>
+            <span class="header__subtitle">Códigos QR a la medida</span>
           </div>
         </div>
         <div class="header__actions">
