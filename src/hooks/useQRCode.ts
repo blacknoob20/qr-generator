@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback, useState } from 'preact/hooks';
 import type { QRConfig } from '../types/qr.types';
 import type { QRMetadata } from '../types/validation.types';
 import { calculateQRMetadata } from '../utils/qr-generator';
+import { buildQROptions } from '../utils/build-qr-options';
 
 interface UseQRCodeResult {
   qrData: QRMetadata;
@@ -56,46 +57,7 @@ export function useQRCode(initialConfig?: Partial<QRConfig>): UseQRCodeResult {
   });
 
   const buildQRCodeOptions = useCallback((config: QRConfig) => {
-    const fg = config.style.color.foreground;
-    const dotStyle = config.style.dotStyle?.shape || 'square';
-    const cornerStyle = config.style.cornerStyle?.shape || 'square';
-
-    const options: any = {
-      width: 300,
-      height: 300,
-      data: config.content,
-      margin: config.advanced.margin,
-      qrOptions: {
-        errorCorrectionLevel: config.advanced.errorCorrectionLevel,
-      },
-      dotsOptions: {
-        color: typeof fg === 'string' ? fg : fg.colors[0],
-        type: dotStyle,
-      },
-      cornersSquareOptions: {
-        color: typeof fg === 'string' ? fg : fg.colors[0],
-        type: cornerStyle,
-      },
-      cornersDotOptions: {
-        color: typeof fg === 'string' ? fg : fg.colors[0],
-        type: cornerStyle,
-      },
-      backgroundOptions: {
-        color: config.style.color.background,
-      },
-    };
-
-    if (config.style.logo?.src) {
-      options.image = config.style.logo.src;
-      options.imageOptions = {
-        crossOrigin: 'anonymous',
-        margin: 4,
-        imageSize: config.style.logo.size / 100,
-        hideBackgroundDots: config.style.logo.hideBackground,
-      };
-    }
-
-    return options;
+    return buildQROptions(config, 300, 300);
   }, []);
 
   useEffect(() => {
@@ -104,9 +66,7 @@ export function useQRCode(initialConfig?: Partial<QRConfig>): UseQRCodeResult {
       setError(null);
 
       try {
-        if (!window.QRCodeStyling) {
-          await loadQRCodeStyling();
-        }
+        if (!window.QRCodeStyling) await loadQRCodeStyling();
 
         const fullConfig: QRConfig = {
           content: configRef.current.content || '',
@@ -135,10 +95,7 @@ export function useQRCode(initialConfig?: Partial<QRConfig>): UseQRCodeResult {
         qrCodeInstanceRef.current = new window.QRCodeStyling(options);
 
       } catch (err) {
-        setError({
-          code: 'GENERATION_FAILED',
-          message: 'Error al generar el código QR',
-        });
+        setError({ code: 'GENERATION_FAILED', message: 'Error al generar el código QR', });
       } finally {
         setIsGenerating(false);
       }
@@ -149,10 +106,7 @@ export function useQRCode(initialConfig?: Partial<QRConfig>): UseQRCodeResult {
 
   const loadQRCodeStyling = async (): Promise<void> => {
     return new Promise((resolve, reject) => {
-      if (window.QRCodeStyling) {
-        resolve();
-        return;
-      }
+      if (window.QRCodeStyling) return resolve();
 
       const script = document.createElement('script');
       script.src = 'https://unpkg.com/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js';
@@ -193,26 +147,23 @@ export function useQRCode(initialConfig?: Partial<QRConfig>): UseQRCodeResult {
     setError(null);
   }, []);
 
-  const toDataURL = useCallback(async (format: 'png' | 'svg', quality: number = 1): Promise<string> => {
-    if (!qrCodeInstanceRef.current) {
-      throw new Error('QR Code not initialized');
-    }
-    return await qrCodeInstanceRef.current.toDataURL(format, quality);
+  const getInstance = useCallback(() => {
+    const instance = qrCodeInstanceRef.current;
+    if (!instance) throw new Error('QR Code not initialized');
+    return instance;
   }, []);
+
+  const toDataURL = useCallback(async (format: 'png' | 'svg', quality: number = 1): Promise<string> => {
+    return await getInstance().toDataURL(format, quality);
+  }, [getInstance]);
 
   const toBlob = useCallback(async (format: 'png', quality: number = 1): Promise<Blob> => {
-    if (!qrCodeInstanceRef.current) {
-      throw new Error('QR Code not initialized');
-    }
-    return await qrCodeInstanceRef.current.toBlob(format, quality);
-  }, []);
+    return await getInstance().toBlob(format, quality);
+  }, [getInstance]);
 
   const getRawData = useCallback(async (format: 'svg' | 'png'): Promise<ArrayBuffer> => {
-    if (!qrCodeInstanceRef.current) {
-      throw new Error('QR Code not initialized');
-    }
-    return await qrCodeInstanceRef.current.getRawData(format);
-  }, []);
+    return await getInstance().getRawData(format);
+  }, [getInstance]);
 
   return {
     qrData,

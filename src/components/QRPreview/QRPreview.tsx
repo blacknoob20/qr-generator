@@ -3,6 +3,7 @@ import type { QRConfig } from '../../types/qr.types';
 import type { ValidationResult } from '../../types/validation.types';
 import { QRCanvas } from '../QRCanvas';
 import { saveAs } from 'file-saver';
+import { buildQROptions } from '../../utils/build-qr-options';
 
 interface QRPreviewProps {
   content: string;
@@ -14,9 +15,9 @@ interface QRPreviewProps {
 
 function detectContentType(content: string): { type: string; icon: string; label: string; destination: string } {
   if (!content) return { type: 'vacio', icon: '✎', label: 'Esperando contenido...', destination: '' };
-  
+
   const trimmed = content.trim();
-  
+
   if (/^https?:\/\//i.test(trimmed)) {
     try {
       const url = new URL(trimmed);
@@ -25,29 +26,29 @@ function detectContentType(content: string): { type: string; icon: string; label
       return { type: 'url', icon: '🔗', label: 'URL', destination: trimmed };
     }
   }
-  
+
   if (/^mailto:/i.test(trimmed) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
     const email = trimmed.replace(/^mailto:/i, '');
     return { type: 'email', icon: '✉', label: 'Correo electrónico', destination: email };
   }
-  
+
   if (/^tel:/i.test(trimmed) || /^\+?[\d\s\-\(\)\.]+$/.test(trimmed)) {
     const phone = trimmed.replace(/^tel:/i, '');
     return { type: 'phone', icon: '☎', label: 'Teléfono', destination: phone };
   }
-  
+
   if (/^wifi:/i.test(trimmed) || /^WIFI:/i.test(trimmed)) {
     return { type: 'wifi', icon: '◉', label: 'WiFi', destination: 'Red inalámbrica' };
   }
-  
+
   if (/^https?:\/\/(wa\.me|api\.whatsapp\.com|web\.whatsapp\.com)/i.test(trimmed) || /^whatsapp:/i.test(trimmed)) {
     return { type: 'whatsapp', icon: '✆', label: 'WhatsApp', destination: trimmed };
   }
-  
+
   if (/^geo:/i.test(trimmed) || /^[\d\-\+\.]+\s*,\s*[\d\-\+\.]+$/.test(trimmed)) {
     return { type: 'location', icon: '◎', label: 'Ubicación', destination: trimmed };
   }
-  
+
   return { type: 'texto', icon: '✎', label: 'Texto libre', destination: trimmed.length > 40 ? trimmed.slice(0, 40) + '...' : trimmed };
 }
 
@@ -77,45 +78,7 @@ export function QRPreview({ content, config, size = 420, validationResult, onOpe
 
   const getExportOptions = () => {
     const QRCodeStyling = (window as any).QRCodeStyling;
-    const fg = config.style.color.foreground;
-    const dotStyle = config.style.dotStyle?.shape || 'square';
-    const cornerStyle = config.style.cornerStyle?.shape || 'square';
-
-    const options: any = {
-      width: 1024,
-      height: 1024,
-      data: content,
-      margin: config.advanced.margin,
-      qrOptions: {
-        errorCorrectionLevel: config.advanced.errorCorrectionLevel,
-      },
-      dotsOptions: {
-        color: typeof fg === 'string' ? fg : fg.colors[0],
-        type: dotStyle,
-      },
-      cornersSquareOptions: {
-        color: typeof fg === 'string' ? fg : fg.colors[0],
-        type: cornerStyle,
-      },
-      cornersDotOptions: {
-        color: typeof fg === 'string' ? fg : fg.colors[0],
-        type: cornerStyle,
-      },
-      backgroundOptions: {
-        color: config.style.color.background,
-      },
-    };
-
-    if (config.style.logo?.src) {
-      options.image = config.style.logo.src;
-      options.imageOptions = {
-        crossOrigin: 'anonymous',
-        margin: 4,
-        imageSize: config.style.logo.size / 100,
-        hideBackgroundDots: config.style.logo.hideBackground,
-      };
-    }
-
+    const options = buildQROptions(config, 1024, 1024, content);
     return { QRCodeStyling, options };
   };
 
@@ -165,10 +128,7 @@ export function QRPreview({ content, config, size = 420, validationResult, onOpe
   const handleShare = async () => {
     if (!content || !navigator.share) return;
     try {
-      await navigator.share({
-        title: 'QR Code',
-        text: content,
-      });
+      await navigator.share({ title: 'QR Code', text: content, });
     } catch (err) {
       console.error('Share failed:', err);
     }

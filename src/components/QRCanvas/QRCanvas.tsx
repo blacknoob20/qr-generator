@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import type { QRConfig } from '../../types/qr.types';
+import { buildQROptions } from '../../utils/build-qr-options';
 
 interface QRCanvasProps {
   content: string;
@@ -14,79 +15,118 @@ declare global {
   }
 }
 
+const LIBRARY_URL = 'https://unpkg.com/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js';
+const LOAD_TIMEOUT = 10000;
+const MAX_RETRIES = 2;
+
+function loadScriptWithTimeout(url: string, timeoutMs: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    const timer = setTimeout(() => {
+      reject(new Error('Timeout: la librería no pudo cargarse'));
+    }, timeoutMs);
+
+    script.src = url;
+    script.onload = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    script.onerror = () => {
+      clearTimeout(timer);
+      reject(new Error('Error al cargar la librería de generación de QR'));
+    };
+    document.head.appendChild(script);
+  });
+}
+
+async function loadLibrary(retries: number = MAX_RETRIES): Promise<void> {
+  if (window.QRCodeStyling) return;
+
+  let lastError: Error;
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      await loadScriptWithTimeout(LIBRARY_URL, LOAD_TIMEOUT);
+      return;
+    } catch (error) {
+      lastError = error as Error;
+      if (attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+      }
+    }
+  }
+
+  throw lastError!;
+}
+
 export function QRCanvas({ content, config, size, format: _format }: QRCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const instanceRef = useRef<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const loadLibrary = async () => {
-      if (!window.QRCodeStyling) {
-        await new Promise<void>((resolve, reject) => {
-          const script = document.createElement('script');
-          script.src = 'https://unpkg.com/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js';
-          script.onload = () => resolve();
-          script.onerror = () => reject(new Error('Failed to load library'));
-          document.head.appendChild(script);
-        });
-      }
-    };
+    if (!content) return;
+
+    let cancelled = false;
 
     const initQR = async () => {
-      await loadLibrary();
+      setIsLoading(true);
+      setError(null);
 
-      if (!containerRef.current) return;
+      try {
+        await loadLibrary();
+        if (cancelled) return;
 
-      const fg = config.style.color.foreground;
-      const dotStyle = config.style.dotStyle?.shape || 'square';
-      const cornerStyle = config.style.cornerStyle?.shape || 'square';
+        if (!containerRef.current) return;
 
-      const options: any = {
-        width: size,
-        height: size,
-        data: content,
-        margin: config.advanced.margin,
-        qrOptions: {
-          errorCorrectionLevel: config.advanced.errorCorrectionLevel,
-        },
-        dotsOptions: {
-          color: typeof fg === 'string' ? fg : fg.colors[0],
-          type: dotStyle,
-        },
-        cornersSquareOptions: {
-          color: typeof fg === 'string' ? fg : fg.colors[0],
-          type: cornerStyle,
-        },
-        cornersDotOptions: {
-          color: typeof fg === 'string' ? fg : fg.colors[0],
-          type: cornerStyle,
-        },
-        backgroundOptions: {
-          color: config.style.color.background,
-        },
-      };
+        const options = buildQROptions(config, size, size, content);
 
-      if (config.style.logo?.src) {
-        options.image = config.style.logo.src;
-        options.imageOptions = {
-          crossOrigin: 'anonymous',
-          margin: 4,
-          imageSize: config.style.logo.size / 100,
-          hideBackgroundDots: config.style.logo.hideBackground,
-        };
-      }
-
-      if (instanceRef.current) {
-        instanceRef.current.update(options);
-      } else {
-        instanceRef.current = new window.QRCodeStyling(options);
-        instanceRef.current.append(containerRef.current);
+        if (instanceRef.current) {
+          instanceRef.current.update(options);
+        } else {
+          instanceRef.current = new window.QRCodeStyling(options);
+          instanceRef.current.append(containerRef.current);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Error desconocido');
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     };
 
-    if (content) {
-      initQR();
-    }
+    initQR();
+
+    return () => {
+      cancelled = true;
+    };
   }, [content, config, size]);
+
+  if (error) {
+    return (
+      <div class="qr-canvas-container">
+        <div class="qr-preview__warning qr-preview__warning--error">
+          <span class="qr-preview__warning-icon">⚠️</span>
+          <span class="qr-preview__warning-message">{error}</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div class="qr-canvas-container">
+        <div class="qr-preview__placeholder">
+          <div class="qr-preview__placeholder-icon">⏳</div>
+          <span>Cargando...</span>
+        </div>
+      </div>
+    );
+  }
 
   return <div ref={containerRef} class="qr-canvas-container" />;
 }
