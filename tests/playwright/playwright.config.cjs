@@ -1,7 +1,7 @@
 const path = require('node:path');
 const { defineConfig, devices } = require('@playwright/test');
 
-const repoRoot = path.resolve(__dirname, '..');
+const repoRoot = path.resolve(__dirname, '../..');
 const baseURL = process.env.BASE_URL || 'http://127.0.0.1:4173';
 const webServer = process.env.BASE_URL
   ? undefined
