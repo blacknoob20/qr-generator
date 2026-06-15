@@ -10,8 +10,20 @@ La organización del sistema se basa en:
 
 | Elemento | Rol |
 |---|---|
-| `SPEC.md` | Define el alcance, contratos principales, arquitectura base y restricciones funcionales |
-| `SDD.md` | Detalla el diseño técnico, flujos, decisiones arquitectónicas y criterios operativos |
+| `00-INDEX.md` | Índice maestro. Puerta de entrada obligatoria. Define orden de lectura por tarea. |
+| `01-PRODUCT.md` | Alcance, objetivo, flujos de usuario, backend, resumen de contratos |
+| `02-ARCHITECTURE.md` | Estructura de carpetas, capas, flujo de datos, signals, jerarquía de componentes |
+| `03-COMPONENTS.md` | Contratos de props, eventos, responsabilidades y diagramas de cada componente UI |
+| `04-HOOKS.md` | Firma de `useQRCode`, entradas, salidas, efectos colaterales |
+| `05-TYPES.md` | Todos los contratos TypeScript: `QRConfig`, `QRStyle`, `ValidationResult`, etc. |
+| `06-VALIDATIONS.md` | Reglas de validación, algoritmo, severidades, contraste, logo, quiet zone |
+| `07-EXPORT.md` | Contratos de exportación PNG/SVG, escalado, DPI, calidad |
+| `08-UX.md` | Tokens de diseño, responsive, tema claro/oscuro, accesibilidad, layout |
+| `09-TESTING.md` | Framework, estructura de tests, cobertura mínima, reglas |
+| `10-QR-TECH.md` | Capacidad por versión, ECL, quiet zone, contraste, riesgos de degradados/logos/formas |
+| `11-ADR.md` | Decisiones arquitectónicas: Preact, Signals, qr-code-styling, Vite, Docker, file-saver |
+| `12-RISKS.md` | Riesgos técnicos, UX, performance, mantenibilidad |
+| `13-APPENDIX.md` | Tipos completos, glosario, recursos externos |
 | Agente Constructor | Implementa el proyecto según los documentos fuente |
 | Agente de Validación | Revisa conformidad técnica, funcional y arquitectónica |
 | Agente de Documentación | Produce documentación derivada del sistema implementado |
@@ -25,9 +37,11 @@ El objetivo operativo es que cualquier agente pueda ejecutar su trabajo con una 
 
 Todo agente debe seguir este orden antes de proponer, validar o modificar trabajo:
 
-1. Leer `/.ai/specs/SPEC.md`.
-2. Leer `/.ai/specs/SDD.md`.
-3. Revisar el código existente solo después de comprender ambos documentos.
+1. Leer `/.ai/specs/00-INDEX.md`.
+2. Leer `/.ai/specs/01-PRODUCT.md`.
+3. Leer `/.ai/specs/02-ARCHITECTURE.md`.
+4. Leer los archivos de especificación específicos para su tarea (según la tabla de `00-INDEX.md`).
+5. Revisar el código existente solo después de comprender los documentos relevantes.
 
 Ningún agente puede omitir este orden.
 
@@ -35,25 +49,27 @@ Ningún agente puede omitir este orden.
 
 La precedencia obligatoria es:
 
-`SPEC.md` > `SDD.md` > código existente
+`01-PRODUCT.md` > `02-ARCHITECTURE.md` > `03-COMPONENTS.md` > `04-HOOKS.md` > `05-TYPES.md` > `06-VALIDATIONS.md` > `07-EXPORT.md` > `08-UX.md` > `09-TESTING.md` > `10-QR-TECH.md` > `11-ADR.md` > `12-RISKS.md` > `13-APPENDIX.md` > código existente
 
 Esto implica:
 
 | Fuente | Nivel de autoridad | Uso permitido |
 |---|---|---|
-| `/.ai/specs/SPEC.md` | Máxima | Define alcance, contratos, módulos, restricciones y objetivo del producto |
-| `/.ai/specs/SDD.md` | Alta | Define diseño técnico detallado y decisiones de implementación compatibles con SPEC |
-| Código existente | Referencial | Sirve como estado actual del repositorio, pero no puede contradecir SPEC ni SDD |
+| `01-PRODUCT.md` | Máxima | Define alcance, contratos, módulos, restricciones y objetivo del producto |
+| `02-ARCHITECTURE.md` | Alta | Define arquitectura, estructura, capas y flujo de datos |
+| `03-COMPONENTS.md` ... `12-RISKS.md` | Media-Alta | Definen dominios específicos compatibles con los archivos de mayor precedencia |
+| `13-APPENDIX.md` | Referencial | Glosario, recursos y tipos completos. No define nuevos requisitos. |
+| Código existente | Referencial | Sirve como estado actual del repositorio, pero no puede contradecir la especificación |
 
-Si el código existente contradice `SPEC.md` o `SDD.md`, el agente debe seguir la documentación y reportar la discrepancia.
+Si el código existente contradice cualquier archivo de especificación, el agente debe seguir la documentación y reportar la discrepancia.
 
 ### 2.3 Reglas de ejecución obligatorias
 
 Todos los agentes deben cumplir estas reglas:
 
-1. No inventar funcionalidades, flujos, pantallas, componentes, estados, validaciones o dependencias que no estén definidas o justificadas por `SPEC.md` o `SDD.md`.
-2. No modificar `/.ai/specs/SPEC.md`.
-3. No modificar `/.ai/specs/SDD.md`.
+1. No inventar funcionalidades, flujos, pantallas, componentes, estados, validaciones o dependencias que no estén definidas o justificadas por los archivos de especificación.
+2. No modificar `/.ai/specs/00-INDEX.md`.
+3. No modificar `/.ai/specs/01-PRODUCT.md` sin autorización explícita.
 4. No reinterpretar una omisión como permiso para ampliar alcance.
 5. Mantener la arquitectura definida en los documentos fuente.
 6. Mantener nombres de componentes, módulos, hooks, tipos y carpetas definidos por la especificación.
@@ -66,10 +82,10 @@ Todos los agentes deben cumplir estas reglas:
 
 Cuando exista conflicto entre fuentes, el agente debe actuar así:
 
-1. Verificar si `SPEC.md` define explícitamente la regla.
-2. Si `SPEC.md` la define, esa decisión prevalece.
-3. Si `SPEC.md` no la define y `SDD.md` sí lo hace sin contradecir a `SPEC.md`, aplicar `SDD.md`.
-4. Si ambos documentos se contradicen o dejan un vacío material, detener la decisión implícita y reportar la inconsistencia.
+1. Verificar si `01-PRODUCT.md` define explícitamente la regla.
+2. Si `01-PRODUCT.md` la define, esa decisión prevalece.
+3. Si `01-PRODUCT.md` no la define y un archivo de dominio específico (ej. `06-VALIDATIONS.md`) sí lo hace sin contradecir a `01-PRODUCT.md`, aplicar el archivo de dominio.
+4. Si dos archivos de especificación se contradicen o dejan un vacío material, detener la decisión implícita y reportar la inconsistencia.
 5. No corregir por criterio propio aquello que cambie alcance, arquitectura o contratos.
 
 ### 2.5 Regla de reporte de inconsistencias
@@ -78,7 +94,7 @@ Todo agente debe reportar inconsistencias cuando detecte cualquiera de estos cas
 
 | Tipo de inconsistencia | Ejemplo |
 |---|---|
-| Documental | `SPEC.md` define una firma distinta a `SDD.md` |
+| Documental | `01-PRODUCT.md` define una firma distinta a `05-TYPES.md` |
 | Arquitectónica | El código implementa una estructura distinta a la definida |
 | Contractual | Tipos, props o retornos no coinciden con los contratos |
 | Funcional | El comportamiento implementado excede o incumple el alcance |
@@ -110,7 +126,7 @@ Todo agente debe preservar, como mínimo, estas decisiones estructurales del pro
 
 ### 3.1 Agente Constructor
 
-**Misión:** implementar el proyecto completo `QR-GENERATOR` de acuerdo con `SPEC.md` y `SDD.md`, sin ampliar alcance.
+**Misión:** implementar el proyecto completo `QR-GENERATOR` de acuerdo con los archivos de especificación, sin ampliar alcance.
 
 **Responsabilidades principales:**
 
@@ -125,8 +141,10 @@ Todo agente debe preservar, como mínimo, estas decisiones estructurales del pro
 
 | Entrada | Uso |
 |---|---|
-| `/.ai/specs/SPEC.md` | Fuente primaria de alcance y contratos |
-| `/.ai/specs/SDD.md` | Fuente secundaria de diseño detallado |
+| `/.ai/specs/00-INDEX.md` | Índice maestro y orden de lectura |
+| `/.ai/specs/01-PRODUCT.md` | Fuente primaria de alcance y contratos |
+| `/.ai/specs/02-ARCHITECTURE.md` | Fuente de arquitectura y estructura |
+| Archivos de dominio específicos | Según la tarea asignada (ver `00-INDEX.md`) |
 | Código existente | Base de trabajo y referencia de estado actual |
 
 **Salidas esperadas:**
@@ -142,16 +160,16 @@ Todo agente debe preservar, como mínimo, estas decisiones estructurales del pro
 1. No inventa nada.
 2. No cambia arquitectura.
 3. No cambia nombres de componentes ni contratos sin autorización documental explícita.
-4. No modifica `SPEC.md` ni `SDD.md`.
+4. No modifica archivos de especificación.
 5. Si detecta ambigüedad material, reporta antes de cerrar una interpretación.
 
 ### 3.2 Agente de Validación
 
-**Misión:** verificar que la implementación cumpla el alcance funcional, técnico y arquitectónico definido por `SPEC.md` y `SDD.md`.
+**Misión:** verificar que la implementación cumpla el alcance funcional, técnico y arquitectónico definido por los archivos de especificación.
 
 **Responsabilidades principales:**
 
-1. Revisar conformidad contra `SPEC.md` y `SDD.md`.
+1. Revisar conformidad contra los archivos de especificación relevantes.
 2. Verificar estructura arquitectónica y organización de módulos.
 3. Revisar contratos TypeScript, props, tipos y retornos.
 4. Revisar validaciones funcionales y restricciones de negocio.
@@ -162,8 +180,10 @@ Todo agente debe preservar, como mínimo, estas decisiones estructurales del pro
 
 | Entrada | Uso |
 |---|---|
-| `/.ai/specs/SPEC.md` | Base de verificación funcional |
-| `/.ai/specs/SDD.md` | Base de verificación técnica |
+| `/.ai/specs/00-INDEX.md` | Índice maestro y orden de lectura |
+| `/.ai/specs/01-PRODUCT.md` | Base de verificación funcional |
+| `/.ai/specs/02-ARCHITECTURE.md` | Base de verificación arquitectónica |
+| `/.ai/specs/03-COMPONENTS.md` ... `12-RISKS.md` | Bases de verificación por dominio |
 | Código implementado | Objeto de validación |
 
 **Salidas esperadas:**
@@ -194,15 +214,16 @@ Todo agente debe preservar, como mínimo, estas decisiones estructurales del pro
 1. Generar o actualizar `README` del proyecto.
 2. Documentar arquitectura implementada.
 3. Documentar componentes, hooks, estado, utilidades y flujos relevantes.
-4. Reflejar decisiones ya existentes en `SPEC.md` y `SDD.md` sin cambiar su significado.
+4. Reflejar decisiones ya existentes en los archivos de especificación sin cambiar su significado.
 5. Mantener consistencia entre documentación y código real.
 
 **Entradas obligatorias:**
 
 | Entrada | Uso |
 |---|---|
-| `/.ai/specs/SPEC.md` | Fuente de alcance funcional |
-| `/.ai/specs/SDD.md` | Fuente de diseño técnico |
+| `/.ai/specs/00-INDEX.md` | Índice maestro y orden de lectura |
+| `/.ai/specs/01-PRODUCT.md` | Fuente de alcance funcional |
+| `/.ai/specs/02-ARCHITECTURE.md` | Fuente de diseño arquitectónico |
 | Código implementado | Fuente de documentación derivada |
 
 **Salidas esperadas:**
@@ -217,7 +238,7 @@ Todo agente debe preservar, como mínimo, estas decisiones estructurales del pro
 
 1. No redefine requerimientos.
 2. No documenta funcionalidades no implementadas como si existieran.
-3. No usa la documentación derivada para invalidar `SPEC.md` o `SDD.md`.
+3. No usa la documentación derivada para invalidar los archivos de especificación.
 
 ### 3.4 Agente de Testing
 
@@ -230,7 +251,7 @@ Todo agente debe preservar, como mínimo, estas decisiones estructurales del pro
 3. Confirmar que los tests representen contratos reales del sistema.
 4. Crear pruebas de regresión antes de fixes cuando aplique.
 
-**Restricción clave:** no debe introducir tests que formalicen comportamiento fuera de `SPEC.md` o `SDD.md`.
+**Restricción clave:** no debe introducir tests que formalicen comportamiento fuera de los archivos de especificación.
 
 ### 3.5 Agente de Refactor
 
@@ -261,7 +282,7 @@ El flujo recomendado entre agentes es el siguiente:
 
 | Etapa | Agente | Recibe | Produce |
 |---|---|---|---|
-| 1 | Constructor | `SPEC.md`, `SDD.md`, código existente | Implementación alineada a especificación |
+| 1 | Constructor | Archivos de especificación + código existente | Implementación alineada a especificación |
 | 2 | Validación | Implementación + documentos fuente | Informe de conformidad y hallazgos |
 | 3 | Testing | Implementación validada + contratos | Suite de pruebas y resultados |
 | 4 | Refactor | Código validado + hallazgos | Mejora interna sin cambio funcional |
@@ -282,7 +303,7 @@ Una etapa solo se considera cerrada cuando:
 | Etapa | Criterio de cierre |
 |---|---|
 | Construcción | La implementación cubre el alcance definido sin desvíos no justificados |
-| Validación | No existen incumplimientos críticos contra `SPEC.md` o `SDD.md` |
+| Validación | No existen incumplimientos críticos contra los archivos de especificación |
 | Testing | Las pruebas relevantes existen y validan el comportamiento esperado |
 | Refactor | No cambió comportamiento, contratos ni arquitectura |
 | Documentación | La documentación refleja fielmente el sistema final |
@@ -291,8 +312,8 @@ Una etapa solo se considera cerrada cuando:
 
 Las siguientes restricciones son obligatorias para todos los agentes:
 
-1. No modificar `/.ai/specs/SPEC.md`.
-2. No modificar `/.ai/specs/SDD.md`.
+1. No modificar `/.ai/specs/00-INDEX.md`.
+2. No modificar `/.ai/specs/01-PRODUCT.md` sin autorización explícita.
 3. No cambiar nombres de componentes definidos por la especificación.
 4. No cambiar la arquitectura definida.
 5. No agregar dependencias no aprobadas.
@@ -325,15 +346,27 @@ Las rutas de referencia del sistema multi-agente son las siguientes:
 | Archivo | Ubicación obligatoria |
 |---|---|
 | `AGENTS.md` | `/.ai/AGENTS.md` |
-| `SPEC.md` | `/.ai/specs/SPEC.md` |
-| `SDD.md` | `/.ai/specs/SDD.md` |
+| `00-INDEX.md` | `/.ai/specs/00-INDEX.md` |
+| `01-PRODUCT.md` | `/.ai/specs/01-PRODUCT.md` |
+| `02-ARCHITECTURE.md` | `/.ai/specs/02-ARCHITECTURE.md` |
+| `03-COMPONENTS.md` | `/.ai/specs/03-COMPONENTS.md` |
+| `04-HOOKS.md` | `/.ai/specs/04-HOOKS.md` |
+| `05-TYPES.md` | `/.ai/specs/05-TYPES.md` |
+| `06-VALIDATIONS.md` | `/.ai/specs/06-VALIDATIONS.md` |
+| `07-EXPORT.md` | `/.ai/specs/07-EXPORT.md` |
+| `08-UX.md` | `/.ai/specs/08-UX.md` |
+| `09-TESTING.md` | `/.ai/specs/09-TESTING.md` |
+| `10-QR-TECH.md` | `/.ai/specs/10-QR-TECH.md` |
+| `11-ADR.md` | `/.ai/specs/11-ADR.md` |
+| `12-RISKS.md` | `/.ai/specs/12-RISKS.md` |
+| `13-APPENDIX.md` | `/.ai/specs/13-APPENDIX.md` |
 
 ### 6.1 Regla de acceso documental
 
-Todo agente debe resolver primero estas rutas antes de cualquier tarea sustantiva. Si un archivo falta, el agente debe reportarlo como bloqueo formal.
+Todo agente debe resolver primero `/.ai/specs/00-INDEX.md` antes de cualquier tarea sustantiva. Si un archivo falta, el agente debe reportarlo como bloqueo formal.
 
 ## 7. Objetivo final
 
-El objetivo final de este sistema multi-agente es permitir que el Agente Constructor implemente `QR-GENERATOR` sin ambigüedades, usando `SPEC.md` como autoridad principal, `SDD.md` como diseño técnico detallado y el código existente únicamente como referencia de estado.
+El objetivo final de este sistema multi-agente es permitir que el Agente Constructor implemente `QR-GENERATOR` sin ambigüedades, usando `01-PRODUCT.md` como autoridad principal, `02-ARCHITECTURE.md` como autoridad arquitectónica, los archivos de dominio específicos como detalle técnico, y el código existente únicamente como referencia de estado.
 
 El resultado esperado es una implementación consistente con la arquitectura definida, validable por otros agentes y documentable sin reinterpretaciones del alcance.
