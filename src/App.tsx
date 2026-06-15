@@ -91,17 +91,10 @@ export function App() {
             config={configSignal.value}
             size={420}
             validationResult={validationSignal.value}
+            onOpenConfig={toggleDrawer}
           />
         </section>
       </main>
-
-      <button
-        class="studio__fab"
-        onClick={toggleDrawer}
-        aria-label="Abrir configuración"
-      >
-        ⚙ Configurar
-      </button>
 
       {drawerOpenSignal.value && (
         <div class="studio__drawer-overlay" onClick={closeDrawer}>

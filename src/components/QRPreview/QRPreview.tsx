@@ -9,6 +9,7 @@ interface QRPreviewProps {
   config: QRConfig;
   size?: number;
   validationResult: ValidationResult;
+  onOpenConfig?: () => void;
 }
 
 function detectContentType(content: string): { type: string; icon: string; label: string; destination: string } {
@@ -50,10 +51,11 @@ function detectContentType(content: string): { type: string; icon: string; label
   return { type: 'texto', icon: '✎', label: 'Texto libre', destination: trimmed.length > 40 ? trimmed.slice(0, 40) + '...' : trimmed };
 }
 
-export function QRPreview({ content, config, size = 420, validationResult }: QRPreviewProps) {
+export function QRPreview({ content, config, size = 420, validationResult, onOpenConfig }: QRPreviewProps) {
   const [downloadStatus, setDownloadStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [infoExpanded, setInfoExpanded] = useState(false);
 
   const contentInfo = detectContentType(content);
   const metadata = validationResult.metadata;
@@ -190,6 +192,11 @@ export function QRPreview({ content, config, size = 420, validationResult }: QRP
         )}
       </div>
 
+      {/* Config Button (mobile) */}
+      <button class="qr-preview__config-btn" onClick={onOpenConfig}>
+        ⚙ Configurar
+      </button>
+
       {/* Action Bar */}
       <div class="qr-preview__action-bar">
         <button
@@ -228,66 +235,80 @@ export function QRPreview({ content, config, size = 420, validationResult }: QRP
         )}
       </div>
 
-      {/* Content Type Detection */}
-      {hasContent && (
-        <div class="qr-preview__info">
-          <div class="qr-preview__info-row">
-            <span class="qr-preview__info-label">Tipo detectado</span>
-            <span class="qr-preview__info-value">
-              <span class="qr-preview__info-icon">{contentInfo.icon}</span>
-              {contentInfo.label}
-            </span>
-          </div>
-          {contentInfo.destination && (
-            <div class="qr-preview__info-row">
-              <span class="qr-preview__info-label">Destino</span>
-              <span class="qr-preview__info-value qr-preview__info-value--destination">{contentInfo.destination}</span>
+      {/* Collapsible Technical Info */}
+      <div class="qr-preview__details">
+        <button
+          class="qr-preview__details-toggle"
+          onClick={() => setInfoExpanded(!infoExpanded)}
+          aria-expanded={infoExpanded}
+        >
+          <span>{infoExpanded ? '▲' : '▼'} Información técnica</span>
+          <span class="qr-preview__details-badge">{metadata.version ? `v${metadata.version}` : ''}</span>
+        </button>
+
+        <div class={`qr-preview__details-content ${infoExpanded ? 'qr-preview__details-content--expanded' : ''}`}>
+          {/* Content Type Detection */}
+          {hasContent && (
+            <div class="qr-preview__info">
+              <div class="qr-preview__info-row">
+                <span class="qr-preview__info-label">Tipo detectado</span>
+                <span class="qr-preview__info-value">
+                  <span class="qr-preview__info-icon">{contentInfo.icon}</span>
+                  {contentInfo.label}
+                </span>
+              </div>
+              {contentInfo.destination && (
+                <div class="qr-preview__info-row">
+                  <span class="qr-preview__info-label">Destino</span>
+                  <span class="qr-preview__info-value qr-preview__info-value--destination">{contentInfo.destination}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* QR Statistics */}
+          {hasContent && isValid && (
+            <div class="qr-preview__stats">
+              <div class="qr-preview__stat">
+                <span class="qr-preview__stat-label">Versión</span>
+                <span class="qr-preview__stat-value">{metadata.version}</span>
+              </div>
+              <div class="qr-preview__stat">
+                <span class="qr-preview__stat-label">Corrección</span>
+                <span class="qr-preview__stat-value">{config.advanced.errorCorrectionLevel}</span>
+              </div>
+              <div class="qr-preview__stat">
+                <span class="qr-preview__stat-label">Módulos</span>
+                <span class="qr-preview__stat-value">{metadata.modules}×{metadata.modules}</span>
+              </div>
+              <div class="qr-preview__stat">
+                <span class="qr-preview__stat-label">Capacidad</span>
+                <span class="qr-preview__stat-value">{usagePercent}%</span>
+              </div>
+            </div>
+          )}
+
+          {/* Compatibility */}
+          {hasContent && isValid && (
+            <div class="qr-preview__compat">
+              <span class="qr-preview__compat-label">Compatibilidad</span>
+              <div class="qr-preview__compat-list">
+                <span class="qr-preview__compat-item">✓ Android</span>
+                <span class="qr-preview__compat-item">✓ iOS</span>
+                <span class="qr-preview__compat-item">✓ Cámara estándar</span>
+              </div>
+            </div>
+          )}
+
+          {/* Scan Preview */}
+          {hasContent && isValid && (
+            <div class="qr-preview__scan-preview">
+              <span class="qr-preview__scan-label">Lo que verá el usuario al escanear:</span>
+              <span class="qr-preview__scan-value">{content}</span>
             </div>
           )}
         </div>
-      )}
-
-      {/* QR Statistics */}
-      {hasContent && isValid && (
-        <div class="qr-preview__stats">
-          <div class="qr-preview__stat">
-            <span class="qr-preview__stat-label">Versión</span>
-            <span class="qr-preview__stat-value">{metadata.version}</span>
-          </div>
-          <div class="qr-preview__stat">
-            <span class="qr-preview__stat-label">Corrección</span>
-            <span class="qr-preview__stat-value">{config.advanced.errorCorrectionLevel}</span>
-          </div>
-          <div class="qr-preview__stat">
-            <span class="qr-preview__stat-label">Módulos</span>
-            <span class="qr-preview__stat-value">{metadata.modules}×{metadata.modules}</span>
-          </div>
-          <div class="qr-preview__stat">
-            <span class="qr-preview__stat-label">Capacidad</span>
-            <span class="qr-preview__stat-value">{usagePercent}%</span>
-          </div>
-        </div>
-      )}
-
-      {/* Compatibility */}
-      {hasContent && isValid && (
-        <div class="qr-preview__compat">
-          <span class="qr-preview__compat-label">Compatibilidad</span>
-          <div class="qr-preview__compat-list">
-            <span class="qr-preview__compat-item">✓ Android</span>
-            <span class="qr-preview__compat-item">✓ iOS</span>
-            <span class="qr-preview__compat-item">✓ Cámara estándar</span>
-          </div>
-        </div>
-      )}
-
-      {/* Scan Preview */}
-      {hasContent && isValid && (
-        <div class="qr-preview__scan-preview">
-          <span class="qr-preview__scan-label">Lo que verá el usuario al escanear:</span>
-          <span class="qr-preview__scan-value">{content}</span>
-        </div>
-      )}
+      </div>
 
       {/* Warnings */}
       {validationResult.warnings.length > 0 && (
