@@ -9,14 +9,15 @@
 
 ## 1. Framework de Testing
 
-El proyecto utiliza **Vitest** como framework de testing principal.
+El proyecto utiliza **Vitest** para testing unitario/integración y **Playwright** para testing E2E.
 
 | Herramienta | Propósito | Versión |
 |-------------|-----------|---------|
-| `vitest` | Runner de tests | ^2.1.9 |
+| `vitest` | Runner de tests unitarios e integración | ^2.1.9 |
 | `@vitest/ui` | UI visual para ejecutar tests | ^2.1.9 |
 | `jsdom` | Entorno DOM para component tests | ^29.1.1 |
 | `@testing-library/preact` | Testing utilities para Preact | ^3.2.4 |
+| `@playwright/test` | Testing E2E con navegador real | ^1.51.1 |
 
 ---
 
@@ -24,15 +25,22 @@ El proyecto utiliza **Vitest** como framework de testing principal.
 
 ```
 qr-generator/
+├── tests/
+│   ├── unit/                # Tests unitarios e integración
+│   │   └── qr-generator.test.ts   # Tests de utilidades
+│   ├── playwright/          # Tests E2E con Playwright
+│   │   ├── render.spec.ts         # Tests de renderizado
+│   │   └── playwright.config.cjs  # Configuración de Playwright
+│   ├── package.json         # Dependencias de tests
+│   └── package-lock.json
 ├── src/
-│   ├── utils/               # Funciones puras
-│   │   ├── qr-generator.ts
-│   │   └── qr-generator.test.ts   # Tests unitarios
-│   ├── hooks/               # Custom hooks
-│   │   └── useQRCode.test.ts      # Tests de hooks
-│   └── components/          # Componentes UI
+│   ├── utils/
+│   │   └── qr-generator.ts
+│   ├── hooks/
+│   │   └── useQRCode.ts
+│   └── components/
 │       └── QRPreview/
-│           └── QRPreview.test.tsx # Tests de componentes
+│           └── QRPreview.tsx
 └── vitest.config.ts         # Configuración de Vitest
 ```
 
@@ -45,6 +53,7 @@ qr-generator/
 | **Unitarios** | Funciones puras (utils, validaciones) | Vitest | > 80% |
 | **Integración** | Hooks con estado | Vitest + @testing-library/preact | > 60% |
 | **Componentes** | Renderizado y eventos | Vitest + jsdom + @testing-library/preact | > 50% |
+| **E2E** | Flujo completo en navegador | Playwright | > 30% |
 
 ---
 
@@ -56,7 +65,8 @@ qr-generator/
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "test:e2e": "cd tests && npx playwright test"
   }
 }
 ```
@@ -66,9 +76,9 @@ qr-generator/
 ## 5. Ejemplo: Test Unitario de Generación
 
 ```typescript
-// src/utils/qr-generator.test.ts
+// tests/unit/qr-generator.test.ts
 import { describe, it, expect } from 'vitest';
-import { calculateQRMetadata, detectEncoding } from './qr-generator';
+import { calculateQRMetadata, detectEncoding } from '../../src/utils/qr-generator';
 
 describe('QR Generation', () => {
   it('should detect byte encoding for URLs', () => {
@@ -103,10 +113,13 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    include: [
+      'tests/unit/**/*.{test,spec}.{ts,tsx}',
+      'src/**/*.{test,spec}.{ts,tsx}'
+    ],
     coverage: {
       reporter: ['text', 'json', 'html'],
-      exclude: ['node_modules/', 'src/**/*.d.ts'],
+      exclude: ['node_modules/', 'src/**/*.d.ts', 'tests/'],
     },
   },
 });
@@ -121,6 +134,8 @@ export default defineConfig({
 3. **Mocking:** Las librerías externas (qr-code-styling, file-saver) deben ser mockeadas en tests de integración
 4. **DOM:** Los tests de componentes deben usar `jsdom` y limpiar el DOM entre tests
 5. **CI:** El comando `vitest run` debe ejecutarse en el pipeline de CI/CD antes de merge
+6. **Estructura:** Los tests unitarios deben ubicarse en `tests/unit/`; los tests E2E en `tests/playwright/`
+7. **Imports:** Los tests en `tests/unit/` deben importar desde `../../src/` en lugar de rutas relativas al archivo fuente
 
 ---
 

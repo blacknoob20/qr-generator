@@ -46,11 +46,20 @@ qr-generator/
 │   ├── App.tsx
 │   ├── main.tsx
 │   └── index.css
+├── tests/
+│   ├── unit/                # Tests unitarios e integración
+│   │   └── qr-generator.test.ts
+│   ├── playwright/          # Tests E2E
+│   │   ├── render.spec.ts
+│   │   └── playwright.config.cjs
+│   ├── package.json         # Dependencias de tests
+│   └── package-lock.json
 ├── public/
 ├── index.html
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
+├── vitest.config.ts
 └── .ai/specs/
 ```
 
@@ -63,6 +72,8 @@ qr-generator/
 | `types/` | Contratos de datos TypeScript |
 | `utils/` | Funciones puras (validación, exportación) |
 | `state/` | Estado reactivo global via Signals |
+| `tests/unit/` | Tests unitarios e integración (Vitest) |
+| `tests/playwright/` | Tests E2E (Playwright) |
 
 ---
 
