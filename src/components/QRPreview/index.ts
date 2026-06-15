@@ -1,0 +1,1 @@
+export { QRPreview } from './QRPreview';

@@ -1,0 +1,49 @@
+services:
+  app:
+    image: node:20
+    container_name: qr-generator
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - node_modules:/app/node_modules
+    ports:
+      - "5175:5173"
+    command: sh -c "npm install -g pnpm && pnpm install && pnpm dev"
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
+    networks:
+      - net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5173"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.51.1-jammy
+    container_name: qr-playwright
+    working_dir: /tests
+    volumes:
+      - ./tests:/tests
+      - ./playwright-report:/tests/playwright-report
+      - ./test-results:/tests/test-results
+    command: sh -c "npm install @playwright/test@1.51.1 && npx playwright test"
+    environment:
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+      - BASE_URL=http://app:5173
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - net
+    profiles:
+      - test
+
+volumes:
+  node_modules:
+
+networks:
+  net:
+    driver: bridge
