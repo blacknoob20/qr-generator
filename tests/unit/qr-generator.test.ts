@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { calculateQRMetadata, detectEncoding, calculateContrast } from './qr-generator';
-import type { QRConfig } from '../types/qr.types';
+import { calculateQRMetadata, detectEncoding, calculateContrast } from '../../src/utils/qr-generator';
+import type { QRConfig } from '../../src/types/qr.types';
 
 const defaultConfig: QRConfig = {
   content: '',
