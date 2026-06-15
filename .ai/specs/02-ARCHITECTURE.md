@@ -31,8 +31,18 @@ qr-generator/
 │   │   └── export.ts
 │   ├── state/               # Estado global (signals)
 │   │   └── qr-store.ts
-│   ├── styles/              # Tokens de diseño
-│   │   └── design-tokens.css
+│   ├── styles/              # Estilos modulares por dominio
+│   │   ├── design-tokens.css        # Tokens CSS globales
+│   │   ├── 00-base.css              # Reset, body, scrollbar, animaciones
+│   │   ├── 01-header.css            # Header component
+│   │   ├── 02-studio.css            # Studio layout
+│   │   ├── 03-qr-preview.css        # QR preview, canvas, actions
+│   │   ├── 04-config-panel.css      # Config panel accordion
+│   │   ├── 05-data-config.css       # Data config inputs
+│   │   ├── 06-style-config.css      # Style config colors, shapes
+│   │   ├── 07-advanced-config.css   # Advanced config ECL, sliders
+│   │   ├── 08-drawer.css            # Mobile drawer
+│   │   └── 09-responsive.css        # Media queries
 │   ├── App.tsx
 │   ├── main.tsx
 │   └── index.css
