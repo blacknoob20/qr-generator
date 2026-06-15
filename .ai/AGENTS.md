@@ -120,7 +120,8 @@ Todo agente debe preservar, como mínimo, estas decisiones estructurales del pro
 | Exportación | PNG y SVG según contratos definidos |
 | Estructura | Organización por `components`, `hooks`, `types`, `utils`, `state`, `styles` |
 | Naturaleza de app | SPA sin backend por defecto |
-| Ejecución | Entorno Docker definido por la especificación |
+| Ejecución | Entorno Docker. No requiere Node.js ni pnpm en la máquina host |
+| Testing | Tests unitarios y E2E se ejecutan dentro del contenedor Docker |
 
 ## 3. Agentes del proyecto
 

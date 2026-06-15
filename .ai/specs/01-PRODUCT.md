@@ -382,6 +382,8 @@ networks:
 
 ### 6.3 Comandos Docker
 
+**Importante:** El entorno de desarrollo y testing se ejecuta **exclusivamente dentro del contenedor Docker**. No requiere Node.js instalado en la máquina host.
+
 ```bash
 # Iniciar la aplicación
 docker compose up -d
@@ -394,6 +396,18 @@ docker compose down
 
 # Reconstruir contenedores
 docker compose up -d --build
+
+# Ejecutar tests unitarios dentro del contenedor
+docker compose exec app pnpm vitest run
+
+# Ejecutar tests E2E (Playwright) dentro del contenedor
+docker compose exec app sh -c "cd tests && npx playwright test"
+
+# Ejecutar tests con coverage dentro del contenedor
+docker compose exec app pnpm vitest run --coverage
+
+# Acceder al shell del contenedor
+docker compose exec app sh
 ```
 
 ---

@@ -59,6 +59,10 @@ qr-generator/
 
 ## 4. Scripts de Testing
 
+**Importante:** El proyecto se ejecuta dentro de un contenedor Docker. No requiere Node.js en la máquina host.
+
+### 4.1 Scripts en package.json
+
 ```json
 {
   "scripts": {
@@ -69,6 +73,33 @@ qr-generator/
     "test:e2e": "cd tests && npx playwright test"
   }
 }
+```
+
+### 4.2 Ejecución dentro del contenedor
+
+```bash
+# Tests unitarios (Vitest)
+docker compose exec app pnpm vitest run
+
+# Tests con UI
+docker compose exec app pnpm vitest --ui
+
+# Tests con coverage
+docker compose exec app pnpm vitest run --coverage
+
+# Tests E2E (Playwright)
+docker compose exec app sh -c "cd tests && npx playwright test"
+
+# Tests E2E con UI
+docker compose exec app sh -c "cd tests && npx playwright test --ui"
+```
+
+### 4.3 Ejecución CI/CD
+
+```bash
+# Pipeline de CI/CD
+docker compose exec app pnpm vitest run
+docker compose exec app sh -c "cd tests && npx playwright test"
 ```
 
 ---
@@ -129,13 +160,14 @@ export default defineConfig({
 
 ## 7. Reglas de Testing
 
-1. **Cobertura mínima:** Todo archivo en `utils/` debe tener tests unitarios con cobertura > 80%
+1. **Cobertura mínima:** Todo archivo en `utils/` (incluyendo `build-qr-options.ts`) debe tener tests unitarios con cobertura > 80%
 2. **Tests antes de fix:** Al reportar un bug, se debe crear un test que reproduzca el error antes de aplicar el fix
 3. **Mocking:** Las librerías externas (qr-code-styling, file-saver) deben ser mockeadas en tests de integración
 4. **DOM:** Los tests de componentes deben usar `jsdom` y limpiar el DOM entre tests
-5. **CI:** El comando `vitest run` debe ejecutarse en el pipeline de CI/CD antes de merge
+5. **CI:** El pipeline de CI/CD debe ejecutar `docker compose exec app pnpm vitest run` antes de merge. No requiere Node.js en el runner.
 6. **Estructura:** Los tests unitarios deben ubicarse en `tests/unit/`; los tests E2E en `tests/playwright/`
 7. **Imports:** Los tests en `tests/unit/` deben importar desde `../../src/` en lugar de rutas relativas al archivo fuente
+8. **Docker:** Todos los comandos de testing (unitarios, coverage, E2E) deben ejecutarse dentro del contenedor Docker. No requiere Node.js instalado en la máquina host
 
 ---
 

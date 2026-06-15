@@ -28,6 +28,7 @@ qr-generator/
 │   ├── utils/               # Utilidades
 │   │   ├── qr-validator.ts
 │   │   ├── qr-generator.ts
+│   │   ├── build-qr-options.ts    # Construcción de options para QRCodeStyling
 │   │   └── export.ts
 │   ├── state/               # Estado global (signals)
 │   │   └── qr-store.ts
@@ -70,7 +71,7 @@ qr-generator/
 | `components/` | UI reusable y composición de vistas |
 | `hooks/` | Lógica de negocio encapsulada (generación QR) |
 | `types/` | Contratos de datos TypeScript |
-| `utils/` | Funciones puras (validación, exportación) |
+| `utils/` | Funciones puras (validación, exportación, construcción de options) |
 | `state/` | Estado reactivo global via Signals |
 | `tests/unit/` | Tests unitarios e integración (Vitest) |
 | `tests/playwright/` | Tests E2E (Playwright) |
