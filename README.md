@@ -28,31 +28,48 @@ La idea es mantener un espacio técnico, colaborativo y respetuoso para construi
 - Vitest + Playwright para pruebas
 
 ## Requisitos
-- Node.js 20+ (si corres local sin Docker)
-- `pnpm` o `npm`
-- Docker + Docker Compose (opcional, recomendado para entorno aislado)
+- Docker + Docker Compose (recomendado, no requiere Node.js local)
+- Node.js 20+ (solo si prefieres ejecutar local sin Docker)
+- `pnpm` o `npm` (solo si prefieres ejecutar local sin Docker)
 
 ## Inicio rápido
-### Opción 1: entorno local (pnpm)
+
+### Opción 1: Docker Compose (recomendado)
+```bash
+# Iniciar el entorno de desarrollo
+docker compose up -d
+
+# Ejecutar tests
+docker compose exec app pnpm vitest run
+```
+Con la configuración actual, el servicio se publica en `http://localhost:5173`.
+
+### Opción 2: entorno local (pnpm)
 ```bash
 pnpm install
 pnpm dev
 ```
 App disponible en `http://localhost:5173` (o el puerto que indique Vite).
 
-### Opción 2: entorno local (npm)
+### Opción 3: entorno local (npm)
 ```bash
 npm install
 npm run dev
 ```
 
-### Opción 3: Docker Compose
-```bash
-docker compose up -d
-```
-Con la configuración actual, el servicio se publica en `http://localhost:5175`.
-
 ## Scripts útiles
+
+### Dentro del contenedor Docker (recomendado)
+```bash
+docker compose exec app pnpm dev         # desarrollo
+docker compose exec app pnpm build       # build de producción
+docker compose exec app pnpm preview     # previsualizar build
+docker compose exec app pnpm test        # modo watch
+docker compose exec app pnpm test:run    # ejecutar tests una vez
+docker compose exec app pnpm coverage    # cobertura
+```
+
+### Local (si tienes Node.js instalado)
 ```bash
 pnpm dev         # desarrollo
 pnpm build       # build de producción
@@ -63,7 +80,17 @@ pnpm coverage    # cobertura
 ```
 
 ## Pruebas E2E
-Puedes ejecutar Playwright con el perfil de pruebas definido en Docker:
+
+### Dentro del contenedor (recomendado)
+```bash
+# Ejecutar tests E2E con Playwright
+docker compose exec app sh -c "cd tests && npx playwright test"
+
+# Ejecutar con UI
+docker compose exec app sh -c "cd tests && npx playwright test --ui"
+```
+
+### Con perfil de test (CI/CD)
 ```bash
 docker compose --profile test up --build --abort-on-container-exit
 ```
@@ -88,7 +115,11 @@ tests/
 1. Haz fork del repositorio.
 2. Crea una rama descriptiva (`feat/nueva-funcion`, `fix/bug-export`).
 3. Implementa tu cambio con pruebas cuando aplique.
-4. Ejecuta validaciones (`pnpm test:run` y, si aplica, E2E).
+4. Ejecuta validaciones dentro del contenedor:
+   ```bash
+   docker compose exec app pnpm test:run
+   docker compose exec app sh -c "cd tests && npx playwright test"
+   ```
 5. Abre un PR explicando:
    - problema que resuelve,
    - enfoque de solución,
