@@ -1,0 +1,59 @@
+/* ===== DRAWER (Mobile bottom sheet) ===== */
+.studio__drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background-color: rgba(0, 0, 0, 0.5);
+  animation: fadeInOverlay 0.2s ease;
+}
+
+.studio__drawer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 85vh;
+  background-color: var(--color-bg);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease;
+}
+
+.studio__drawer-handle {
+  width: 40px;
+  height: 4px;
+  background-color: var(--color-border);
+  border-radius: var(--radius-full);
+  margin: var(--space-3) auto;
+  flex-shrink: 0;
+}
+
+.studio__drawer-scroll {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding: var(--space-4) var(--space-5) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.studio__drawer-apply {
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-primary-500);
+  border: none;
+  border-radius: var(--radius-lg);
+  color: white;
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+.studio__drawer-apply:hover {
+  background-color: var(--color-primary-600);
+}
