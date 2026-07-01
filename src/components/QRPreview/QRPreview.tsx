@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks';
+import QRCodeStyling from 'qr-code-styling';
 import type { QRConfig } from '../../types/qr.types';
 import type { ValidationResult } from '../../types/validation.types';
 import { QRCanvas } from '../QRCanvas';
@@ -77,16 +78,15 @@ export function QRPreview({ content, config, size = 420, validationResult, onOpe
   }
 
   const getExportOptions = () => {
-    const QRCodeStyling = (window as any).QRCodeStyling;
     const options = buildQROptions(config, 1024, 1024, content);
-    return { QRCodeStyling, options };
+    return options;
   };
 
   const handleDownloadPNG = async () => {
     if (!content || !isValid) return;
     setDownloadStatus('loading');
     try {
-      const { QRCodeStyling, options } = getExportOptions();
+      const options = getExportOptions();
       const qr = new QRCodeStyling(options);
       const blob = await qr.getRawData('png');
       saveAs(blob, 'qr-code.png');
@@ -102,7 +102,7 @@ export function QRPreview({ content, config, size = 420, validationResult, onOpe
     if (!content || !isValid) return;
     setDownloadStatus('loading');
     try {
-      const { QRCodeStyling, options } = getExportOptions();
+      const options = getExportOptions();
       const qr = new QRCodeStyling({ ...options, type: 'svg' });
       const svgBlob = await qr.getRawData('svg');
       saveAs(svgBlob, 'qr-code.svg');

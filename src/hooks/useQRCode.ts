@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from 'preact/hooks';
+import QRCodeStyling from 'qr-code-styling';
 import type { QRConfig } from '../types/qr.types';
 import type { QRMetadata } from '../types/validation.types';
 import { calculateQRMetadata } from '../utils/qr-generator';
@@ -24,12 +25,6 @@ interface QRCodeError {
     usedCapacity?: number;
     requiredVersion?: number;
   };
-}
-
-declare global {
-  interface Window {
-    QRCodeStyling: any;
-  }
 }
 
 export function useQRCode(initialConfig?: Partial<QRConfig>): UseQRCodeResult {
@@ -66,8 +61,6 @@ export function useQRCode(initialConfig?: Partial<QRConfig>): UseQRCodeResult {
       setError(null);
 
       try {
-        if (!window.QRCodeStyling) await loadQRCodeStyling();
-
         const fullConfig: QRConfig = {
           content: configRef.current.content || '',
           encoding: configRef.current.encoding || 'byte',
@@ -92,7 +85,7 @@ export function useQRCode(initialConfig?: Partial<QRConfig>): UseQRCodeResult {
         }
 
         const options = buildQRCodeOptions(fullConfig);
-        qrCodeInstanceRef.current = new window.QRCodeStyling(options);
+        qrCodeInstanceRef.current = new QRCodeStyling(options);
 
       } catch (err) {
         setError({ code: 'GENERATION_FAILED', message: 'Error al generar el código QR', });
@@ -103,18 +96,6 @@ export function useQRCode(initialConfig?: Partial<QRConfig>): UseQRCodeResult {
 
     initQRCode();
   }, [buildQRCodeOptions]);
-
-  const loadQRCodeStyling = async (): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      if (window.QRCodeStyling) return resolve();
-
-      const script = document.createElement('script');
-      script.src = 'https://unpkg.com/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js';
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error('Failed to load QR Code Styling library'));
-      document.head.appendChild(script);
-    });
-  };
 
   const updateConfig = useCallback((newConfig: Partial<QRConfig>) => {
     configRef.current = { ...configRef.current, ...newConfig };

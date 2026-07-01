@@ -126,7 +126,7 @@ const CUSTOM_SHAPE_WARNING_RULE: ValidationRule = {
   id: 'CUSTOM_SHAPE_WARNING',
   severity: 'info',
   validate: (config: QRConfig): ValidationWarning | null => {
-    const shapes: DotShape[] = ['circle', 'star', 'heart', 'diamond'];
+    const shapes: DotShape[] = ['dots', 'classy', 'classy-rounded', 'extra-rounded'];
     if (config.style.dotStyle && shapes.includes(config.style.dotStyle.shape)) {
       return {
         id: 'CUSTOM_SHAPE_WARNING',

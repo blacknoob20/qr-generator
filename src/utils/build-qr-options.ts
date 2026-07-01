@@ -1,23 +1,7 @@
 import type { QRConfig } from '../types/qr.types';
+import type { Options } from 'qr-code-styling';
 
-interface QROptions {
-  width: number;
-  height: number;
-  data: string;
-  margin: number;
-  qrOptions: { errorCorrectionLevel: string; };
-  dotsOptions: { color: string; type: string; };
-  cornersSquareOptions: { color: string; type: string; };
-  cornersDotOptions: { color: string; type: string; };
-  backgroundOptions: { color: string; };
-  image?: string;
-  imageOptions?: {
-    crossOrigin: string;
-    margin: number;
-    imageSize: number;
-    hideBackgroundDots: boolean;
-  };
-}
+type QROptions = Options;
 
 export function buildQROptions(
   config: QRConfig,
@@ -26,8 +10,8 @@ export function buildQROptions(
   data?: string
 ): QROptions {
   const fg = config.style.color.foreground;
-  const dotStyle = config.style.dotStyle?.shape || 'square';
-  const cornerStyle = config.style.cornerStyle?.shape || 'square';
+  const dotShape = config.style.dotStyle?.shape || 'square';
+  const cornerShape = config.style.cornerStyle?.shape || 'square';
   const foregroundColor = typeof fg === 'string' ? fg : fg.colors[0];
 
   const options: QROptions = {
@@ -35,11 +19,11 @@ export function buildQROptions(
     height,
     data: data || config.content,
     margin: config.advanced.margin,
-    qrOptions: { errorCorrectionLevel: config.advanced.errorCorrectionLevel, },
-    dotsOptions: { color: foregroundColor, type: dotStyle, },
-    cornersSquareOptions: { color: foregroundColor, type: cornerStyle, },
-    cornersDotOptions: { color: foregroundColor, type: cornerStyle, },
-    backgroundOptions: { color: config.style.color.background, },
+    qrOptions: { errorCorrectionLevel: config.advanced.errorCorrectionLevel },
+    dotsOptions: { color: foregroundColor, type: dotShape },
+    cornersSquareOptions: { color: foregroundColor, type: cornerShape },
+    cornersDotOptions: { color: foregroundColor, type: cornerShape },
+    backgroundOptions: { color: config.style.color.background },
   };
 
   if (config.style.logo?.src) {

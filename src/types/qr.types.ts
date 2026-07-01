@@ -7,8 +7,8 @@ export type QRVersion = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
                         21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 |
                         31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40;
 
-export type DotShape = 'square' | 'rounded' | 'circle' | 'star' | 'heart' | 'diamond';
-export type CornerShape = 'square' | 'rounded' | 'circle';
+export type DotShape = 'square' | 'rounded' | 'dots' | 'classy' | 'classy-rounded' | 'extra-rounded';
+export type CornerShape = 'square' | 'dot' | 'extra-rounded' | 'rounded' | 'dots' | 'classy' | 'classy-rounded';
 
 export type GradientType = 'linear' | 'radial';
 

@@ -116,16 +116,17 @@ export function StyleConfig({ style, onChange }: StyleConfigProps) {
   const dotShapes: { value: DotShape; label: string }[] = [
     { value: 'square', label: '■' },
     { value: 'rounded', label: '●' },
-    { value: 'circle', label: '○' },
-    { value: 'star', label: '★' },
-    { value: 'heart', label: '♥' },
-    { value: 'diamond', label: '◆' },
+    { value: 'dots', label: '⬤' },
+    { value: 'classy', label: '✦' },
+    { value: 'classy-rounded', label: '✧' },
+    { value: 'extra-rounded', label: '◉' },
   ];
 
   const cornerShapes: { value: CornerShape; label: string }[] = [
     { value: 'square', label: '■' },
-    { value: 'rounded', label: '●' },
-    { value: 'circle', label: '○' },
+    { value: 'dot', label: '●' },
+    { value: 'extra-rounded', label: '◉' },
+    { value: 'rounded', label: '◐' },
   ];
 
   const isGradient = typeof style.color.foreground !== 'string';
