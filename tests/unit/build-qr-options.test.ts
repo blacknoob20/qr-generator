@@ -87,7 +87,7 @@ describe('buildQROptions', () => {
           radius: 0.5,
         },
         cornerStyle: {
-          shape: 'circle',
+          shape: 'dot',
           radius: 0.5,
         },
       },
@@ -96,8 +96,8 @@ describe('buildQROptions', () => {
     const options = buildQROptions(config);
 
     expect(options.dotsOptions.type).toBe('rounded');
-    expect(options.cornersSquareOptions.type).toBe('circle');
-    expect(options.cornersDotOptions.type).toBe('circle');
+    expect(options.cornersSquareOptions.type).toBe('dot');
+    expect(options.cornersDotOptions.type).toBe('dot');
   });
 
   it('should build options with logo', () => {
